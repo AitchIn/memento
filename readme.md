@@ -2,7 +2,7 @@ To play the game click here:
 https://memento-245d0.web.app/
 
 
-For Project:
+For start of Project:
 
 npm install -g firebase-tools
 
