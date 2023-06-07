@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import shuffle from './utilities/shuffle';
 import Card from './components/Card';
 import Header from './components/Header';
+import Fireworks from './components/Firework';
 import useAppBadge from './hooks/useAppBadge';
+import InstallPWA from './components/InstallPWA';
 
 function App() {
   const [cards, setCards] = useState(shuffle);
@@ -10,6 +12,7 @@ function App() {
   const [pickTwo, setPickTwo] = useState(null);
   const [disabled, setDisabled] = useState(false);
   const [wins, setWins] = useState(0);
+  const [firework, setFirework] = useState(false);
   const [setBadge, clearBadge] = useAppBadge();
 
   //Handling card selection
@@ -23,6 +26,7 @@ function App() {
     setPickOne(null);
     setPickTwo(null);
     setDisabled(false);
+    setFirework(false);
   };
 
   //start over
@@ -71,24 +75,32 @@ function App() {
 
   //all matches found
   useEffect(() => {
+    let pickTimer;
     //check remaining cards
     const checkWin = cards.filter((card) => !card.matched);
 
     //all matches found
     if (cards.length && checkWin.length < 1) {
-      console.log('You win!');
-      setWins(wins + 1);
-      setBadge();
-      handleTurn();
-      setCards(shuffle);
+      setFirework(true);
+      pickTimer = setTimeout(() => {
+        setWins(wins + 1);
+        handleTurn();
+        setCards(shuffle);
+        setBadge();
+      }, 5000);
     }
+
+  //to avoid conflicts with next timeout
+  return () => {
+    clearTimeout(pickTimer);
+  }
 
   }, [cards, wins]);
 
   return (
     <>
     <Header handleNewGame={handleNewGame} wins={wins} />
-
+    <InstallPWA />
     <div className='grid'>
       {cards.map((card) => {
         const { image, id, matched } = card;
@@ -103,6 +115,8 @@ function App() {
         )
       })}
     </div>
+    
+    {firework && <Fireworks />}
     </>
   );
 }
